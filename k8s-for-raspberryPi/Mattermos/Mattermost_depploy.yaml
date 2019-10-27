@@ -1,0 +1,40 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mattermost
+  labels:
+    app: mattermost
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mattermost
+  template:
+    metadata:
+      labels:
+        app: mattermost
+    spec:
+      containers:
+        - image: mattermost/mattermost-prod-app:latest
+          name: mattermost
+          env:
+            - name: DB_HOST
+              value: matter
+            - name: MM_USERNAME
+              value: matter 
+            - name: MM_PASSWORD
+              value: 4126@Music
+            - name: MM_DBNAME
+              value: matter
+          volumeMounts:
+            - name: mattermost-persistent-storage
+              mountPath: /mattermost/data
+            - name: mattermost-config-persistent-storage
+              mountPath: /mattermost/config
+      volumes:
+        - name: mattermost-persistent-storage
+          persistentVolumeClaim:
+            claimName: mattermost-pvc
+        - name: mattermost-config-persistent-storage
+          persistentVolumeClaim:
+            claimName: mattermost-config-pvc

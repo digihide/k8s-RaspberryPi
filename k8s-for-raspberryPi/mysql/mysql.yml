@@ -1,0 +1,83 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: local-pv-10
+  labels:
+    type: local
+spec:
+  storageClassName: sc-db
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/home/pi/disk-space/pv-10"
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pv-claim-10
+  labels:
+    app: dev
+spec:
+  storageClassName: sc-db 
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: mysql
+  labels:
+    app: dev
+spec:
+  selector:
+    matchLabels:
+      app: dev
+      tier: db
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: dev
+        tier: db
+    spec:
+      containers:
+      - image: hypriot/rpi-mysql
+        name: mysql
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-pass
+              key: password
+        ports:
+        - containerPort: 3306
+          name: mysql
+        volumeMounts:
+        - name: mysql-persistent-storage-10
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mysql-persistent-storage-10
+        persistentVolumeClaim:
+          claimName: mysql-pv-claim-10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  labels:
+    app: dev
+spec:
+  ports:
+    - port: 3306
+  selector:
+    app: dev
+    tier: db
+  type: NodePort

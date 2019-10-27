@@ -1,0 +1,40 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: db-nc
+  labels:
+    app: db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db
+  template:
+    metadata:
+      labels:
+        app: db
+    spec:
+      containers:
+        - image: hypriot/rpi-mysql
+          name: db
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+            - name: MYSQL_DATABASE
+              value: nextcloud
+            - name: MYSQL_PASSWORD
+              value: 4126Music
+            - name: MYSQL_USER
+              value: nextcloud
+            - name: MYSQL_ROOT_PASSWORD
+              value: 4126Music
+          ports:
+            - containerPort: 3306
+              name: db
+#          volumeMounts:
+#            - name: db-local-storage
+#              mountPath: /var/lib/mysql
+#      volumes:
+#        - name: db-local-storage
+#          persistentVolumeClaim:
+#            claimName: db-pvc
+
