@@ -10,7 +10,8 @@ spec:
   selector:
     app: wordpress
     tier: mysql
-  clusterIP: None
+ # clusterIP: None
+  type: NodePort 
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -25,7 +26,7 @@ spec:
     requests:
       storage: 2Gi
 ---
-apiVersion: apps/v1beta2
+apiVersion: apps/v1 
 kind: Deployment
 metadata:
   name: wordpress-mysql
@@ -45,14 +46,11 @@ spec:
         tier: mysql
     spec:
       containers:
-      - image: hypriot/rpi-mysql 
+      - image: mysql:latest 
         name: mysql
         env:
         - name: MYSQL_ROOT_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: mysql-pass
-              key: password 
+          value: Pass@1234
         ports:
         - containerPort: 3306
           name: mysql
